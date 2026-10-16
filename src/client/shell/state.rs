@@ -519,6 +519,8 @@ pub(super) enum ClientContextMenuAction {
     NewTab,
     RenamePane,
     ClearPaneName,
+    CopyPaneId,
+    CopyPaneName,
     SwapWithFocusedPane,
     SplitRight,
     SplitDown,
