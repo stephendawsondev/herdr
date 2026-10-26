@@ -227,7 +227,9 @@ fn lookup_agent(name: &str) -> Option<Agent> {
         "letta" | "letta-code" | "letta code" => Some(Agent::Letta),
         "maki" => Some(Agent::Maki),
         "muse" | "muse-code" | "muse-cli" => Some(Agent::Muse),
-        "vibe" | "vibe-cli" => Some(Agent::Vibe),
+        // The uv-installed mistral-vibe tool launches its Rust binary as `vibe-rs`
+        // (e.g. ~/.local/share/uv/tools/mistral-vibe/.../vibe/_bin/vibe-rs).
+        "vibe" | "vibe-cli" | "vibe-rs" => Some(Agent::Vibe),
         _ if is_muse_versioned_binary(name) => Some(Agent::Muse),
         _ => None,
     }
@@ -1045,6 +1047,7 @@ mod tests {
         );
         assert_eq!(identify_agent("vibe"), Some(Agent::Vibe));
         assert_eq!(identify_agent("vibe-cli"), Some(Agent::Vibe));
+        assert_eq!(identify_agent("vibe-rs"), Some(Agent::Vibe));
     }
 
     #[test]
@@ -1075,6 +1078,7 @@ mod tests {
         assert_eq!(parse_agent_label("kilo-code"), Some(Agent::Kilo));
         assert_eq!(parse_agent_label("vibe"), Some(Agent::Vibe));
         assert_eq!(parse_agent_label("vibe-cli"), Some(Agent::Vibe));
+        assert_eq!(parse_agent_label("vibe-rs"), Some(Agent::Vibe));
     }
 
     #[test]
