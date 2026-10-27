@@ -331,6 +331,20 @@ Herdr はデフォルトで `~/.grok` を使い、`GROK_HOME` が設定されて
 
 Grok がセッション開始イベントを発行した後、Herdr は報告されたセッション id を使って `grok --resume <id>` でペインを resume できます。
 
+## Mistral Vibe CLI
+
+Mistral Vibe CLI フックをインストールします:
+
+```bash
+herdr integration install vibe
+```
+
+Vibe 統合は Vibe ネイティブのフックシステムを使います。Herdr は `hooks.toml` 設定ファイルをインストールし、2 つのフックを登録します: `herdr-session-start`（各ツール呼び出しの前に発火）と `herdr-session-idle`（エージェントの各ターン完了後に発火）です。これらのフックはネイティブ復元のためのセッション識別を報告します。ライフサイクル状態は Herdr のスクリーンマニフェスト検出から得られます。
+
+Herdr はデフォルトで `~/.vibe` を使い、`VIBE_CONFIG_DIR` が設定されていればそちらを使います。Vibe の設定ディレクトリはあらかじめ存在している必要があります。インストールは Vibe 設定ディレクトリに `hooks.toml` を書き込み、`hooks/herdr-session-start` と `hooks/herdr-session-idle` のフックスクリプトを作成します。アンインストールは Herdr 所有のこの 3 ファイルだけを削除します。
+
+Vibe がセッション開始イベントを発行した後、Herdr は報告されたセッション id を使って `vibe --resume <id>` でペインを resume できます。
+
 ## カスタムステータスラベル
 
 インテグレーションは、ライフサイクル状態を意味的な状態としてのみ報告します。たとえば、ライフサイクル報告に表示フィールドを加えず、エージェントを `working` として報告します。

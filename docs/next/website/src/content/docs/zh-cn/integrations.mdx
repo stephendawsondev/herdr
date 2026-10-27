@@ -331,6 +331,20 @@ Herdr 默认使用 `~/.grok`,设置了 `GROK_HOME` 时使用后者。Grok 配置
 
 Grok 发出会话启动事件后,Herdr 可以用上报的会话 id 通过 `grok --resume <id>` 恢复窗格。
 
+## Mistral Vibe CLI
+
+安装 Mistral Vibe CLI 钩子:
+
+```bash
+herdr integration install vibe
+```
+
+Vibe 集成使用 Vibe 原生的钩子系统。Herdr 会安装一个 `hooks.toml` 配置文件,注册两个钩子:`herdr-session-start`(每次工具调用前触发)和 `herdr-session-idle`(每个智能体回合完成后触发)。这些钩子为原生恢复上报会话身份。生命周期状态来自 Herdr 的屏幕清单检测。
+
+Herdr 默认使用 `~/.vibe`,设置了 `VIBE_CONFIG_DIR` 时使用后者。Vibe 配置目录必须已经存在。安装会在 Vibe 配置目录中写入 `hooks.toml`,并创建 `hooks/herdr-session-start` 和 `hooks/herdr-session-idle` 钩子脚本。卸载只会删除这三个由 Herdr 管理的文件。
+
+Vibe 发出会话启动事件后,Herdr 可以用上报的会话 id 通过 `vibe --resume <id>` 恢复窗格。
+
 ## 自定义状态标签
 
 集成只把生命周期状态作为语义状态上报。例如,上报智能体为 `working` 时,不在生命周期报告中添加展示字段。
