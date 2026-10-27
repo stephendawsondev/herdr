@@ -652,6 +652,36 @@ fn highlighted_search_match_copies_after_in_flight_repeat() {
 }
 
 #[test]
+fn copy_pane_id_keybind_writes_focused_pane_id_to_clipboard() {
+    let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+    state.set_snapshot(Box::new(snapshot()));
+    let mut outcome = ClientShellInput::default();
+    state.record_binding(
+        crate::input::KeybindMatch::Action(crate::input::KeybindAction::CopyPaneId),
+        &mut outcome,
+    );
+    assert!(matches!(
+        &outcome.actions[..],
+        [ClientShellAction::ClipboardWrite(bytes)] if bytes == b"pane_1"
+    ));
+    assert!(
+        state.copy_feedback.is_none(),
+        "feedback must wait for clipboard dispatch"
+    );
+}
+
+#[test]
+fn copy_pane_id_keybind_without_snapshot_copies_nothing() {
+    let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+    let mut outcome = ClientShellInput::default();
+    state.record_binding(
+        crate::input::KeybindMatch::Action(crate::input::KeybindAction::CopyPaneId),
+        &mut outcome,
+    );
+    assert!(outcome.actions.is_empty());
+}
+
+#[test]
 fn pixel_host_reports_use_cells_without_target_pixel_mode_and_release_outside() {
     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
     state.set_snapshot(Box::new(snapshot()));

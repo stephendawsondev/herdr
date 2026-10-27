@@ -169,6 +169,18 @@ impl ClientShellState {
                     }
                     return;
                 }
+                if action == crate::input::KeybindAction::CopyPaneId {
+                    if let Some(pane_id) = self
+                        .snapshot
+                        .as_deref()
+                        .and_then(|snapshot| snapshot.focused_pane_id.clone())
+                    {
+                        outcome
+                            .actions
+                            .push(ClientShellAction::ClipboardWrite(pane_id.into_bytes()));
+                    }
+                    return;
+                }
                 if self.handle_endpoint_navigation(action, outcome) {
                     return;
                 }

@@ -54,6 +54,7 @@ pub(crate) enum KeybindAction {
     EditScrollback,
     ClearPane,
     CopyMode,
+    CopyPaneId,
     Zoom,
     EnterResizeMode,
     ResizePaneLeft,
@@ -123,6 +124,7 @@ pub(crate) fn resolve_non_indexed_action(
         (&keybinds.edit_scrollback, KeybindAction::EditScrollback),
         (&keybinds.clear_pane, KeybindAction::ClearPane),
         (&keybinds.copy_mode, KeybindAction::CopyMode),
+        (&keybinds.copy_pane_id, KeybindAction::CopyPaneId),
         (&keybinds.focus_pane_left, KeybindAction::FocusPaneLeft),
         (&keybinds.focus_pane_down, KeybindAction::FocusPaneDown),
         (&keybinds.focus_pane_up, KeybindAction::FocusPaneUp),
@@ -291,6 +293,36 @@ mod tests {
                 &TerminalKey::new(KeyCode::Char('k'), KeyModifiers::SHIFT)
             ),
             Some(KeybindMatch::Action(KeybindAction::SwapPaneUp))
+        ));
+    }
+
+    #[test]
+    fn copy_pane_id_is_unbound_by_default_and_configurable() {
+        assert!(crate::config::Config::default()
+            .keybinds()
+            .copy_pane_id
+            .bindings
+            .is_empty());
+        let config: crate::config::Config =
+            toml::from_str("[keys]\ncopy_pane_id = [\"ctrl+alt+i\", \"prefix+i\"]").unwrap();
+        assert!(config.collect_diagnostics().is_empty());
+        let keybinds = config.keybinds();
+        assert!(matches!(
+            resolve_direct_binding(
+                &keybinds,
+                &TerminalKey::new(
+                    KeyCode::Char('i'),
+                    KeyModifiers::CONTROL | KeyModifiers::ALT
+                )
+            ),
+            Some(KeybindMatch::Action(KeybindAction::CopyPaneId))
+        ));
+        assert!(matches!(
+            resolve_prefix_binding(
+                &keybinds,
+                &TerminalKey::new(KeyCode::Char('i'), KeyModifiers::empty())
+            ),
+            Some(KeybindMatch::Action(KeybindAction::CopyPaneId))
         ));
     }
 

@@ -716,6 +716,12 @@
           "description": "Enter keyboard copy mode for the focused pane."
         },
         {
+          "key": "keys.copy_pane_id",
+          "type": "keybinding",
+          "default": "unset",
+          "description": "Copy the focused pane's public ID (for example, \"w1:p1\") to the clipboard and show the copied-to-clipboard toast. Unset by default; for example, copy_pane_id = \"prefix+i\"."
+        },
+        {
           "key": "keys.focus_pane_left",
           "type": "keybinding",
           "default": "\"prefix+h\"",
