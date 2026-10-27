@@ -63,9 +63,9 @@ use super::{
     OPENCODE_PLUGIN_INSTALL_NAME, OPENCODE_TUI_PLUGIN_ASSET, OPENCODE_TUI_PLUGIN_INSTALL_NAME,
     OPENCODE_TUI_PLUGIN_SPEC, PI_EXTENSION_ASSET, PI_EXTENSION_INSTALL_NAME, QODERCLI_HOOK_ASSET,
     QODERCLI_HOOK_EVENTS, QODERCLI_HOOK_INSTALL_NAME, QODERCLI_REMOVED_LIFECYCLE_HOOK_EVENTS,
-    QWEN_HOOK_ASSET, QWEN_HOOK_EVENTS, QWEN_HOOK_INSTALL_NAME,
-    VIBE_HOOK_CONFIG_INSTALL_NAME, VIBE_HOOK_SCRIPT_START_ASSET, VIBE_HOOK_SCRIPT_START_INSTALL_NAME,
-    VIBE_HOOK_SCRIPT_IDLE_ASSET, VIBE_HOOK_SCRIPT_IDLE_INSTALL_NAME, VIBE_INTEGRATION_VERSION,
+    QWEN_HOOK_ASSET, QWEN_HOOK_EVENTS, QWEN_HOOK_INSTALL_NAME, VIBE_HOOK_CONFIG_INSTALL_NAME,
+    VIBE_HOOK_SCRIPT_IDLE_ASSET, VIBE_HOOK_SCRIPT_IDLE_INSTALL_NAME, VIBE_HOOK_SCRIPT_START_ASSET,
+    VIBE_HOOK_SCRIPT_START_INSTALL_NAME, VIBE_INTEGRATION_VERSION,
 };
 
 fn ensure_extension_dir(dir: &Path, agent: &str) -> io::Result<()> {
@@ -1864,7 +1864,13 @@ fn vibe_hooks_toml_content(start_hook_path: &Path, idle_hook_path: &Path) -> Str
 }
 
 /// Generate a single hook entry for vibe's hooks.toml
-fn vibe_hook_entry(name: &str, hook_type: &str, match_pattern: &str, command: &str, timeout: f64) -> String {
+fn vibe_hook_entry(
+    name: &str,
+    hook_type: &str,
+    match_pattern: &str,
+    command: &str,
+    timeout: f64,
+) -> String {
     if match_pattern.is_empty() {
         format!(
             "[[hooks]]\nname = \"{}\"\ntype = \"{}\"\ncommand = \"{}\"\ntimeout = {}\n\n",
