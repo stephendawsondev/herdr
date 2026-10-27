@@ -59,7 +59,9 @@ impl ClientContextMenuOverlay {
                 let mut items = vec![item("Rename pane", Action::RenamePane)];
                 if *has_manual_label {
                     items.push(item("Clear pane name", Action::ClearPaneName));
+                    items.push(item("Copy pane name", Action::CopyPaneName));
                 }
+                items.push(item("Copy pane ID", Action::CopyPaneId));
                 if source_pane_id.is_some() {
                     items.push(item("Swap with focused pane", Action::SwapWithFocusedPane));
                 }
@@ -391,6 +393,27 @@ impl ClientShellState {
                 }),
                 outcome,
             ),
+            ClientContextMenuAction::CopyPaneId => {
+                outcome
+                    .actions
+                    .push(ClientShellAction::ClipboardWrite(pane_id.into_bytes()));
+                self.show_copy_feedback(std::time::Instant::now());
+            }
+            ClientContextMenuAction::CopyPaneName => {
+                let label = self.snapshot.as_deref().and_then(|snapshot| {
+                    snapshot
+                        .panes
+                        .iter()
+                        .find(|pane| pane.pane_id == pane_id)
+                        .and_then(|pane| pane.label.clone())
+                });
+                if let Some(label) = label {
+                    outcome
+                        .actions
+                        .push(ClientShellAction::ClipboardWrite(label.into_bytes()));
+                    self.show_copy_feedback(std::time::Instant::now());
+                }
+            }
             ClientContextMenuAction::SwapWithFocusedPane => {
                 if let Some(source_pane_id) = source_pane_id {
                     self.push_endpoint_method(

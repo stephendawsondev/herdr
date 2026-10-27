@@ -474,6 +474,85 @@ fn new_tab_overlay_owns_text_cursor_and_submits_public_api_request() {
 }
 
 #[test]
+fn pane_context_menu_copies_pane_id_and_manual_name_to_clipboard() {
+    let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+    state.set_snapshot(Box::new(snapshot()));
+    state.set_pane_surface(surface());
+    state.compose(106, 20).expect("composed frame");
+    let pane = state.hits.panes[0].rect;
+
+    // An unlabelled pane offers "Copy pane ID" without a "Copy pane name" item.
+    state.handle_raw_events(vec![RawInputEvent::Mouse(crossterm::event::MouseEvent {
+        kind: MouseEventKind::Down(MouseButton::Right),
+        column: pane.x + 1,
+        row: pane.y,
+        modifiers: KeyModifiers::empty(),
+    })]);
+    state.compose(106, 20).expect("pane context menu");
+    let items = match state.overlay.as_ref() {
+        Some(ClientShellOverlay::ContextMenu(menu)) => menu.items(),
+        _ => panic!("pane context menu"),
+    };
+    let copy_id_index = items
+        .iter()
+        .position(|item| item.action == ClientContextMenuAction::CopyPaneId)
+        .expect("copy pane id item");
+    assert_eq!(items[copy_id_index].label, "Copy pane ID");
+    assert!(items
+        .iter()
+        .all(|item| item.action != ClientContextMenuAction::CopyPaneName));
+    let copy_id_row = state.hits.context_menu_rows[copy_id_index].0;
+    let outcome =
+        state.handle_raw_events(vec![RawInputEvent::Mouse(crossterm::event::MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: copy_id_row.x + 1,
+            row: copy_id_row.y,
+            modifiers: KeyModifiers::empty(),
+        })]);
+    let [ClientShellAction::ClipboardWrite(bytes)] = &outcome.actions[..] else {
+        panic!("copy pane id should write the clipboard");
+    };
+    assert_eq!(bytes.as_slice(), b"pane_1");
+    assert!(state.copy_feedback.is_some());
+    assert!(state.overlay.is_none());
+
+    // A manual label adds "Copy pane name", which copies the label itself.
+    let mut labelled = snapshot();
+    labelled.panes[0].label = Some("worker".into());
+    state.set_snapshot(Box::new(labelled));
+    state.compose(106, 20).expect("labelled frame");
+    state.handle_raw_events(vec![RawInputEvent::Mouse(crossterm::event::MouseEvent {
+        kind: MouseEventKind::Down(MouseButton::Right),
+        column: pane.x + 1,
+        row: pane.y,
+        modifiers: KeyModifiers::empty(),
+    })]);
+    state.compose(106, 20).expect("labelled pane context menu");
+    let items = match state.overlay.as_ref() {
+        Some(ClientShellOverlay::ContextMenu(menu)) => menu.items(),
+        _ => panic!("labelled pane context menu"),
+    };
+    let copy_name_index = items
+        .iter()
+        .position(|item| item.action == ClientContextMenuAction::CopyPaneName)
+        .expect("copy pane name item");
+    assert_eq!(items[copy_name_index].label, "Copy pane name");
+    let copy_name_row = state.hits.context_menu_rows[copy_name_index].0;
+    let outcome =
+        state.handle_raw_events(vec![RawInputEvent::Mouse(crossterm::event::MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: copy_name_row.x + 1,
+            row: copy_name_row.y,
+            modifiers: KeyModifiers::empty(),
+        })]);
+    let [ClientShellAction::ClipboardWrite(bytes)] = &outcome.actions[..] else {
+        panic!("copy pane name should write the clipboard");
+    };
+    assert_eq!(bytes.as_slice(), b"worker");
+    assert!(state.copy_feedback.is_some());
+}
+
+#[test]
 fn close_confirmation_error_becomes_client_owned_overlay_and_stable_workspace_close() {
     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
     state.set_snapshot(Box::new(snapshot()));
