@@ -308,6 +308,9 @@ pub fn plan(source: &str, agent: &str, session_ref: &AgentSessionRef) -> Option<
                 ]
             }
         }
+        ("herdr:vibe", "vibe", AgentSessionRefKind::Id) => {
+            vec!["vibe".into(), "--resume".into(), session_ref.value.clone()]
+        }
         _ => return None,
     };
 
@@ -346,6 +349,7 @@ pub(crate) fn is_official_agent_source(source: &str, agent: &str) -> bool {
             | ("herdr:antigravity_cli", "agy")
             | ("herdr:grok", "grok")
             | ("herdr:letta", "letta")
+            | ("herdr:vibe", "vibe")
     )
 }
 
@@ -658,6 +662,16 @@ mod tests {
             &AgentSessionRef::id("default:").unwrap()
         )
         .is_none());
+        assert_eq!(
+            plan(
+                "herdr:vibe",
+                "vibe",
+                &AgentSessionRef::id("vibe-session-123").unwrap()
+            )
+            .unwrap()
+            .argv,
+            vec!["vibe", "--resume", "vibe-session-123"]
+        );
     }
 
     #[test]

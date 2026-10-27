@@ -1423,6 +1423,17 @@
             "on",
             "off"
           ]
+        },
+        {
+          "key": "ui.sound.agents.vibe",
+          "type": "enum",
+          "default": "\"default\"",
+          "description": "Sound override for detected Mistral Vibe agents.",
+          "values": [
+            "default",
+            "on",
+            "off"
+          ]
         }
       ]
     },
